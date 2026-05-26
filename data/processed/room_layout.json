@@ -1,0 +1,81 @@
+{
+  "rooms": [
+    {
+      "category": "Sleep",
+      "color": "#4b4d8f",
+      "x": 78,
+      "y": 82,
+      "width": 500,
+      "height": 270,
+      "camera": { "x": 28, "y": 36, "width": 640, "height": 405 },
+      "annotation": "Sleep barely changes across the tour, which is the joke: every age still pays rent to the pillow.",
+      "doors": [{ "x1": 520, "y1": 356, "x2": 572, "y2": 356 }]
+    },
+    {
+      "category": "Work",
+      "color": "#8d969c",
+      "x": 594,
+      "y": 82,
+      "width": 322,
+      "height": 270,
+      "camera": { "x": 520, "y": 34, "width": 500, "height": 405 },
+      "annotation": "Work shrinks after 65, and the hours do not vanish; they move into maintenance, rest, and choosing what the day is for.",
+      "doors": [{ "x1": 594, "y1": 356, "x2": 648, "y2": 356 }]
+    },
+    {
+      "category": "Education",
+      "color": "#d8b84e",
+      "x": 950,
+      "y": 82,
+      "width": 170,
+      "height": 270,
+      "camera": { "x": 875, "y": 34, "width": 310, "height": 405 },
+      "annotation": "Education is a young-adult room with fluorescent lights; later in life, that scheduled learning mostly exits the floor plan.",
+      "doors": [{ "x1": 950, "y1": 356, "x2": 1004, "y2": 356 }]
+    },
+    {
+      "category": "Household Activities",
+      "color": "#b08b63",
+      "x": 78,
+      "y": 376,
+      "width": 292,
+      "height": 308,
+      "camera": { "x": 28, "y": 314, "width": 440, "height": 440 },
+      "annotation": "Household time grows with age, proof that retirement does not include a refund from dishes, errands, or dust.",
+      "doors": [{ "x1": 374, "y1": 478, "x2": 374, "y2": 532 }]
+    },
+    {
+      "category": "Leisure",
+      "color": "#65a86f",
+      "x": 390,
+      "y": 376,
+      "width": 388,
+      "height": 308,
+      "camera": { "x": 330, "y": 314, "width": 520, "height": 440 },
+      "annotation": "Leisure expands for older adults, turning recovery from a stolen corner into a room with actual seating.",
+      "doors": [{ "x1": 586, "y1": 376, "x2": 640, "y2": 376 }]
+    },
+    {
+      "category": "Caregiving",
+      "color": "#cc7778",
+      "x": 798,
+      "y": 376,
+      "width": 122,
+      "height": 308,
+      "camera": { "x": 738, "y": 314, "width": 260, "height": 440 },
+      "annotation": "Caregiving is small here, but small rooms can have heavy doors when someone else depends on the schedule.",
+      "doors": [{ "x1": 798, "y1": 478, "x2": 798, "y2": 532 }]
+    },
+    {
+      "category": "Travel",
+      "color": "#dd8a43",
+      "x": 940,
+      "y": 376,
+      "width": 180,
+      "height": 308,
+      "camera": { "x": 880, "y": 314, "width": 305, "height": 440 },
+      "annotation": "Travel is the museum hallway: young adults spend more of the day simply getting from one obligation to the next.",
+      "doors": [{ "x1": 940, "y1": 478, "x2": 940, "y2": 532 }]
+    }
+  ]
+}

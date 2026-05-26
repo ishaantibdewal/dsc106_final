@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>This Is a Day in Your Life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <p class="kicker">2024 American Time Use Survey</p>
+      <h1>This Is a Day in Your Life</h1>
+      <p class="subtitle">How one 24-hour day changes as Americans age.</p>
+      <p class="opening">Everyone gets the same 24 hours. But as we age, those hours are traded, compressed, stretched, and rearranged.</p>
+      <a class="scroll-cue" href="#meet">Start the day</a>
+    </div>
+    <div class="hero-visual">
+      <p class="hero-preview-label">A 24-hour day, broken into activities</p>
+      <div id="hero-clock"></div>
+      <div id="hero-mini-legend" class="mini-legend"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="meet-section" id="meet" aria-label="Meet Maya">
+      <div class="section-copy">
+        <p class="kicker">Meet the composite</p>
+        <h2>Meet Maya. She is <span id="maya-age-text">18</span>.</h2>
+        <p>Maya is fictional, but her day is not invented. She represents a weighted average of Americans in her age group from the American Time Use Survey.</p>
+      </div>
+      <article class="avatar-card" aria-live="polite">
+        <div class="avatar-portrait" aria-hidden="true">
+          <div class="avatar-face">
+            <span></span>
+          </div>
+        </div>
+        <div>
+          <p class="card-label">Name</p>
+          <h3>Maya</h3>
+        </div>
+        <dl>
+          <div>
+            <dt>Current age group</dt>
+            <dd id="avatar-age">18-24</dd>
+          </div>
+          <div>
+            <dt>Biggest time category</dt>
+            <dd id="avatar-biggest">Sleep</dd>
+          </div>
+          <div>
+            <dt>Most squeezed category</dt>
+            <dd id="avatar-squeezed">Caregiving</dd>
+          </div>
+          <div>
+            <dt>Hours that feel like yours</dt>
+            <dd id="avatar-yours">Leisure</dd>
+          </div>
+          <div>
+            <dt>Hours spent on obligations</dt>
+            <dd id="avatar-obligations">Work and care</dd>
+          </div>
+        </dl>
+        <p id="avatar-summary">Her day is still loose around the edges.</p>
+      </article>
+    </section>
+
+    <section class="story-shell" id="story" aria-label="Life-stage scrollytelling">
+      <div class="sticky-graphic">
+        <div class="graphic-card">
+          <div class="graphic-topline">
+            <p class="kicker">Maya's 24 hours</p>
+            <div id="stage-pill">18-24</div>
+          </div>
+          <h2 id="stage-title">Age 18-24</h2>
+          <p id="stage-sentence">Time still feels open.</p>
+          <div id="age-pills" class="age-pills" aria-label="Jump to an age group"></div>
+          <p class="chart-note">How to read this: each square is 15 minutes. Hover a square for the activity, click a legend item to hold a highlight.</p>
+          <div id="life-clock" class="life-clock"></div>
+          <div id="clock-legend" class="clock-legend"></div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <article class="step is-active" data-age="18-24" data-highlight="Leisure">
+          <p class="step-label">Age 18-24</p>
+          <h3>Time still feels open.</h3>
+          <p>School, leisure, friends, sleep, and screens compete for space, but the day has not fully hardened into routine.</p>
+        </article>
+        <article class="step" data-age="25-34" data-highlight="Work">
+          <p class="step-label">Age 25-34</p>
+          <h3>Work enters the center.</h3>
+          <p>The hours that used to feel flexible begin to gather around jobs, commutes, and responsibilities.</p>
+        </article>
+        <article class="step" data-age="35-44" data-highlight="Household Activities">
+          <p class="step-label">Age 35-44</p>
+          <h3>The day becomes crowded.</h3>
+          <p>Paid work is joined by unpaid work: chores, errands, and care.</p>
+        </article>
+        <article class="step" data-age="45-54" data-highlight="Work">
+          <p class="step-label">Age 45-54</p>
+          <h3>This is the compressed day.</h3>
+          <p>Work remains large, but personal time becomes more fragmented.</p>
+        </article>
+        <article class="step" data-age="55-64" data-highlight="Leisure">
+          <p class="step-label">Age 55-64</p>
+          <h3>The day begins to loosen.</h3>
+          <p>Some people regain time, while others continue working or caring for others.</p>
+        </article>
+        <article class="step" data-age="65+" data-highlight="Leisure">
+          <p class="step-label">Age 65+</p>
+          <h3>Time returns, but differently.</h3>
+          <p>The day has more open space, but social life, health, and routine shape what that time feels like.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="tradeoff-section" id="tradeoffs">
+      <div class="section-copy">
+        <p class="kicker">Tradeoffs</p>
+        <h2>When one part of life grows, another shrinks.</h2>
+        <p>The chart below compares a few emotional buckets across age. It is the same 24 hours every time, so every expansion has to come from somewhere.</p>
+      </div>
+      <div class="tradeoff-controls" role="group" aria-label="Choose a tradeoff">
+        <button class="tradeoff-button is-selected" type="button" data-tradeoff="work-leisure">Work vs leisure</button>
+        <button class="tradeoff-button" type="button" data-tradeoff="care-personal">Care/chores vs personal time</button>
+        <button class="tradeoff-button" type="button" data-tradeoff="sleep-everything">Sleep vs everything else</button>
+        <button class="tradeoff-button" type="button" data-tradeoff="alone-social">Alone time vs social time</button>
+      </div>
+      <div id="tradeoff-chart" class="wide-chart"></div>
+    </section>
+
+    <section class="rhythm-section" id="rhythm">
+      <div class="section-copy">
+        <p class="kicker">Daily rhythm</p>
+        <h2>The same hour means different things at different ages.</h2>
+        <p>The day is not just a list of totals. It has a shape: nights of sleep, workday blocks, errands at the edges, and leisure when the clock finally loosens.</p>
+      </div>
+      <div id="rhythm-chart" class="wide-chart"></div>
+    </section>
+
+    <section class="find-section" id="find-yourself">
+      <div class="section-copy">
+        <p class="kicker">Find yourself</p>
+        <h2>Your 24-Hour Receipt</h2>
+        <p>Choose an age group and print the same day in plain language: what felt like yours, what belonged to obligations, and what your body asked for.</p>
+      </div>
+      <div class="find-layout">
+        <div class="receipt-controls">
+          <div class="control">
+            <label for="receipt-age">Age group</label>
+            <select id="receipt-age"></select>
+          </div>
+        </div>
+        <article id="life-receipt" class="receipt" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <section class="methodology" id="methodology">
+      <p class="kicker">Methodology</p>
+      <h2>Source and processing</h2>
+      <p>Data are prepared from the 2024 American Time Use Survey microdata published by the U.S. Bureau of Labor Statistics. Browser-ready files use weighted age-group averages for adults 18 and older and map activity codes into major daily activities.</p>
+      <p>The receipt combines the project’s existing categories into story buckets in code: Sleep, Work/Education, Household/Care, Leisure, Social, and Other. The museum idea remains only as a quiet archival texture; the main interaction follows a person through time.</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="main.js"></script>
+</body>
+</html>

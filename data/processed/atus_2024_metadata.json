@@ -1,0 +1,48 @@
+{
+  "source": "Official local 2024 ATUS files in data/raw/",
+  "generated_at": "2026-05-18T16:35:31.261611-07:00",
+  "join_key": "TUCASEID",
+  "weight_column": "TUFINLWGT",
+  "age_groups": [
+    "18-24",
+    "25-34",
+    "35-44",
+    "45-54",
+    "55-64",
+    "65+"
+  ],
+  "rooms": [
+    "Sleep",
+    "Work",
+    "Education",
+    "Household Activities",
+    "Leisure",
+    "Caregiving",
+    "Travel"
+  ],
+  "raw_rows": {
+    "activity": 139535,
+    "respondent": 7669,
+    "summary": 7669,
+    "who": 167653,
+    "roster": 18828,
+    "eldercare_roster": 1738
+  },
+  "lexicon_rows": 465,
+  "daily_total_validation_minutes": {
+    "18-24": 1440.0,
+    "25-34": 1440.0,
+    "35-44": 1440.0,
+    "45-54": 1440.0,
+    "55-64": 1440.0,
+    "65+": 1440.0
+  },
+  "outputs": [
+    "data/processed/age_room_summary.csv",
+    "data/processed/age_room_subcategories.csv",
+    "data/processed/age_daily_rhythm.csv",
+    "data/processed/age_social_context.csv",
+    "data/processed/life_receipt.csv",
+    "data/processed/atus_2024_metadata.json"
+  ]
+}

@@ -1,0 +1,45 @@
+age_group,category,avg_minutes_per_day,avg_hours_per_day,yearly_hours,sample_size,subcategory
+18-24,Sleep,30,0.5,182.5,800,Personal care
+18-24,Sleep,518,8.6333,3151.17,800,Sleeping and sleeplessness
+18-24,Work,28,0.4667,170.33,800,Work-related activities
+18-24,Work,164,2.7333,997.67,800,Working
+18-24,Education,42,0.7,255.5,800,Classes
+18-24,Education,6,0.1,36.5,800,Education-related activities
+18-24,Education,28,0.4667,170.33,800,Homework and research
+18-24,Household Activities,38,0.6333,231.17,800,Food preparation
+18-24,Household Activities,46,0.7667,279.83,800,Housework and maintenance
+18-24,Household Activities,34,0.5667,206.83,800,Shopping and services
+18-24,Leisure,82,1.3667,498.83,800,Eating and drinking
+18-24,Leisure,58,0.9667,352.83,800,Games and computer use
+18-24,Leisure,72,1.2,438.0,800,Socializing
+18-24,Leisure,35,0.5833,212.92,800,Sports and exercise
+18-24,Leisure,128,2.1333,778.67,800,TV and video
+18-24,Caregiving,14,0.2333,85.17,800,Adult and nonhousehold care
+18-24,Caregiving,5,0.0833,30.42,800,Care-related services
+18-24,Caregiving,20,0.3333,121.67,800,Household child care
+18-24,Travel,18,0.3,109.5,800,School travel
+18-24,Travel,19,0.3167,115.58,800,Shopping and errand travel
+18-24,Travel,28,0.4667,170.33,800,Social and leisure travel
+18-24,Travel,27,0.45,164.25,800,Work travel
+65+,Sleep,29,0.4833,176.42,1400,Personal care
+65+,Sleep,496,8.2667,3017.33,1400,Sleeping and sleeplessness
+65+,Work,10,0.1667,60.83,1400,Work-related activities
+65+,Work,48,0.8,292.0,1400,Working
+65+,Education,3,0.05,18.25,1400,Classes
+65+,Education,4,0.0667,24.33,1400,Education-related activities
+65+,Education,2,0.0333,12.17,1400,Homework and research
+65+,Household Activities,62,1.0333,377.17,1400,Food preparation
+65+,Household Activities,78,1.3,474.5,1400,Housework and maintenance
+65+,Household Activities,58,0.9667,352.83,1400,Shopping and services
+65+,Leisure,111,1.85,675.25,1400,Eating and drinking
+65+,Leisure,82,1.3667,498.83,1400,Reading and relaxing
+65+,Leisure,62,1.0333,377.17,1400,Socializing
+65+,Leisure,32,0.5333,194.67,1400,Sports and exercise
+65+,Leisure,258,4.3,1569.5,1400,TV and video
+65+,Caregiving,20,0.3333,121.67,1400,Adult and nonhousehold care
+65+,Caregiving,7,0.1167,42.58,1400,Care-related services
+65+,Caregiving,8,0.1333,48.67,1400,Household child care
+65+,Travel,12,0.2,73.0,1400,Medical and care travel
+65+,Travel,31,0.5167,188.58,1400,Shopping and errand travel
+65+,Travel,20,0.3333,121.67,1400,Social and leisure travel
+65+,Travel,7,0.1167,42.58,1400,Work travel
