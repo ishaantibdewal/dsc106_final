@@ -90,17 +90,17 @@
           <h3>Time still feels open.</h3>
           <p>School, leisure, friends, sleep, and screens compete for space, but the day has not fully hardened into routine.</p>
         </article>
-        <article class="step" data-age="25-34" data-highlight="Work">
+        <article class="step" data-age="25-34" data-highlight="Work/Education">
           <p class="step-label">Age 25-34</p>
           <h3>Work enters the center.</h3>
           <p>The hours that used to feel flexible begin to gather around jobs, commutes, and responsibilities.</p>
         </article>
-        <article class="step" data-age="35-44" data-highlight="Household Activities">
+        <article class="step" data-age="35-44" data-highlight="Household/Care">
           <p class="step-label">Age 35-44</p>
           <h3>The day becomes crowded.</h3>
           <p>Paid work is joined by unpaid work: chores, errands, and care.</p>
         </article>
-        <article class="step" data-age="45-54" data-highlight="Work">
+        <article class="step" data-age="45-54" data-highlight="Work/Education">
           <p class="step-label">Age 45-54</p>
           <h3>This is the compressed day.</h3>
           <p>Work remains large, but personal time becomes more fragmented.</p>
@@ -137,7 +137,7 @@
       <div class="section-copy">
         <p class="kicker">Daily rhythm</p>
         <h2>The same hour means different things at different ages.</h2>
-        <p>The day is not just a list of totals. It has a shape: nights of sleep, workday blocks, errands at the edges, and leisure when the clock finally loosens.</p>
+        <p>Each cell shows the dominant activity for that age group at that hour. Some activities may not appear here because this chart shows the dominant activity at each hour, not every activity people do.</p>
       </div>
       <div id="rhythm-chart" class="wide-chart"></div>
     </section>
@@ -159,11 +159,31 @@
       </div>
     </section>
 
+    <section class="conclusion-section" aria-label="Conclusion">
+      <div class="section-copy">
+        <p class="kicker">Closing thought</p>
+        <h2>So what does a day become?</h2>
+        <p>The story is not just that people spend time differently as they age. It is that time becomes less flexible, more obligated, and then eventually open again in a different way. A 24-hour day looks equal on paper, but the freedom inside those hours changes across a lifetime.</p>
+        <p class="final-callout">Same 24 hours. Different lives.</p>
+      </div>
+    </section>
+
+    <section class="writeup-section" aria-label="Project Progress Writeup">
+      <details class="progress-writeup">
+        <summary>Project Progress Writeup</summary>
+        <div class="writeup-content">
+          <p>So far, we have built the main structure of our project around the idea that every person gets the same 24 hours, but those hours change shape across different stages of life. We redesigned the original museum-style concept into a more personal scrollytelling experience where the viewer follows a fictional composite person named Maya across different age groups. We created the main 24-hour grid visualization, age group controls, a daily rhythm heatmap, a tradeoff section, and a final life receipt that summarizes how time is divided. We also added interactive elements such as hover tooltips, clickable legends, and age group buttons so the viewer can explore the data instead of only reading static charts. Overall, the project now has a stronger narrative flow, but we are still refining the chart labels, legends, explanatory text, and final polish so the story is easier to understand.</p>
+
+          <p>The most challenging part of our project will be making the visualizations feel personal while still staying accurate to the data. Since the project uses average time-use patterns, we need to make sure Maya is clearly presented as a fictional composite rather than a real person or a perfect representation of everyone in an age group. Another challenge is making the grid charts easy to read because they use several activity categories, and the viewer can get confused if the colors, labels, and legends are not consistent. The daily rhythm chart is especially difficult because it shows the dominant activity for each hour, which means some categories may exist in the dataset but not appear in the chart if they are never dominant. Because of this, we need to make the legends data-driven and explain that the grid is showing the most common activity at each hour, not every activity people do during the day.</p>
+        </div>
+      </details>
+    </section>
+
     <section class="methodology" id="methodology">
       <p class="kicker">Methodology</p>
       <h2>Source and processing</h2>
-      <p>Data are prepared from the 2024 American Time Use Survey microdata published by the U.S. Bureau of Labor Statistics. Browser-ready files use weighted age-group averages for adults 18 and older and map activity codes into major daily activities.</p>
-      <p>The receipt combines the project’s existing categories into story buckets in code: Sleep, Work/Education, Household/Care, Leisure, Social, and Other. The museum idea remains only as a quiet archival texture; the main interaction follows a person through time.</p>
+      <p>Data are prepared from the 2024 American Time Use Survey microdata published by the U.S. Bureau of Labor Statistics. The age groups are weighted averages, and Maya is a fictional composite used to make those averages easier to follow.</p>
+      <p>Detailed ATUS activity codes are simplified into story categories such as Sleep, Work/Education, Household/Care, Leisure, Social, and Travel. The daily rhythm grid shows the dominant hourly activity, while the receipt combines categories into broader story buckets.</p>
     </section>
   </main>
 

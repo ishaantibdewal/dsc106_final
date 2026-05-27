@@ -1,4 +1,3 @@
-const RAW_ROOMS = ["Sleep", "Work", "Education", "Household Activities", "Leisure", "Caregiving", "Travel"];
 const CLOCK_CATEGORIES = ["Sleep", "Work/Education", "Household/Care", "Leisure", "Travel"];
 const CATEGORY_ORDER = ["Sleep", "Work/Education", "Household/Care", "Leisure", "Social", "Travel", "Other"];
 const AGES = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
@@ -260,13 +259,10 @@ function renderHeroClock() {
 }
 
 function renderHeroMiniLegend() {
-  const legend = d3.select("#hero-mini-legend");
-  legend.html("");
-  legend.selectAll("div")
-    .data(CLOCK_CATEGORIES)
-    .join("div")
-    .attr("class", "mini-legend-item")
-    .html(category => `<span style="background:${colorFor(category)}"></span>${category}`);
+  renderLegend("#hero-mini-legend", CLOCK_CATEGORIES, {
+    itemClass: "mini-legend-item",
+    interactive: false
+  });
 }
 
 function renderAgePills() {
@@ -288,7 +284,7 @@ function renderLifeClock() {
   container.html("");
   const width = container.node()?.clientWidth || 760;
   const mobile = width < 560;
-  const margin = { top: 24, right: 22, bottom: 48, left: 22 };
+  const margin = { top: 24, right: 28, bottom: 78, left: 28 };
   const cols = mobile ? 12 : 24;
   const rows = mobile ? 8 : 4;
   const cellGap = mobile ? 5 : 7;
@@ -311,7 +307,7 @@ function updateLifeClock(age) {
 
   const width = container.node()?.clientWidth || 760;
   const mobile = width < 560;
-  const margin = { top: 24, right: 22, bottom: 48, left: 22 };
+  const margin = { top: 24, right: 28, bottom: 78, left: 28 };
   const cols = mobile ? 12 : 24;
   const rows = mobile ? 8 : 4;
   const cellGap = mobile ? 5 : 7;
@@ -350,16 +346,24 @@ function updateLifeClock(age) {
     { hour: 24, label: "12am" }
   ];
 
+  const axisY = margin.top + rows * cell + (rows - 1) * cellGap + 34;
+  const axisX = d3.scaleLinear()
+    .domain([0, 24])
+    .range([margin.left + cell / 2, width - margin.right - cell / 2]);
   const axis = svg.select("g.clock-axis").html("");
+  axis.append("line")
+    .attr("class", "life-clock-axis-line")
+    .attr("x1", axisX(0))
+    .attr("x2", axisX(24))
+    .attr("y1", axisY - 12)
+    .attr("y2", axisY - 12);
+
   anchors.forEach(anchor => {
-    const index = Math.min(anchor.hour * 4, 95);
-    const x = margin.left + (index % cols) * (cell + cellGap);
-    const row = Math.floor(index / cols);
-    const y = margin.top + row * (cell + cellGap) + cell + 18;
     axis.append("text")
-      .attr("x", x)
-      .attr("y", Math.min(+svg.attr("height") - 18, y))
+      .attr("x", axisX(anchor.hour))
+      .attr("y", axisY)
       .attr("class", "axis-text")
+      .attr("text-anchor", anchor.hour === 0 ? "start" : anchor.hour === 24 ? "end" : "middle")
       .text(anchor.label);
   });
 
@@ -385,25 +389,17 @@ function addLifeBlockEvents(selection) {
 }
 
 function renderClockLegend() {
-  const legend = d3.select("#clock-legend");
-  legend.html("");
-  legend.selectAll("button")
-    .data(CLOCK_CATEGORIES)
-    .join("button")
-    .attr("type", "button")
-    .attr("class", "legend-item")
-    .attr("data-category", d => d)
-    .html(category => `<span style="background:${colorFor(category)}"></span>${category}`)
-    .on("mouseenter focus", (event, category) => {
-      if (!lockedCategory) applyCategoryHighlight(category);
-    })
-    .on("mouseleave blur", () => {
-      if (!lockedCategory) applyCategoryHighlight(currentHighlight);
-    })
-    .on("click", (event, category) => {
-      lockedCategory = lockedCategory === category ? null : category;
-      applyCategoryHighlight(lockedCategory || currentHighlight);
-    });
+  const visibleCategories = groupedRowsForAge(currentAge)
+    .filter(d => d.hours > 0.02)
+    .map(d => d.category);
+  if (lockedCategory && !visibleCategories.includes(lockedCategory)) lockedCategory = null;
+
+  renderLegend("#clock-legend", visibleCategories, {
+    itemClass: "legend-item",
+    interactive: true,
+    lockable: true,
+    reset: true
+  });
 }
 
 function updateLifeStage(age, highlight = defaultHighlight(age)) {
@@ -416,11 +412,12 @@ function updateLifeStage(age, highlight = defaultHighlight(age)) {
   d3.selectAll(".age-pill").classed("is-selected", d => d === age);
 
   d3.select("#stage-pill").text(formatAge(age));
-  d3.select("#stage-title").text(STAGE_COPY[age].title.replace("-", "–"));
+  d3.select("#stage-title").text(`Maya's 24 hours at ${formatAge(age)}`);
   d3.select("#stage-sentence").text(STAGE_COPY[age].sentence);
   d3.select("#maya-age-text").text(age === "65+" ? "65+" : age.split("-")[0]);
 
   updateAvatarCard(age);
+  renderClockLegend();
   updateLifeClock(age);
 }
 
@@ -607,24 +604,39 @@ function renderDailyRhythm() {
   container.html("");
   const width = container.node()?.clientWidth || 960;
   const mobile = width < 560;
-  const height = width < 640 ? 470 : 450;
-  const margin = { top: 72, right: mobile ? 16 : 30, bottom: mobile ? 140 : 102, left: mobile ? 54 : 86 };
+  const height = width < 640 ? 400 : 410;
+  const margin = { top: 72, right: mobile ? 16 : 30, bottom: mobile ? 62 : 68, left: mobile ? 54 : 86 };
   const svg = container.append("svg").attr("width", width).attr("height", height);
   const x = d3.scaleBand().domain(d3.range(24)).range([margin.left, width - margin.right]).paddingInner(0.1);
   const y = d3.scaleBand().domain(AGES).range([margin.top, height - margin.bottom]).paddingInner(0.18);
   const cells = AGES.flatMap(age => dominantRhythm(age));
+  const visibleCategorySet = new Set(cells.map(d => d.category));
+  const visibleCategories = CATEGORY_ORDER.filter(category => visibleCategorySet.has(category));
 
   svg.append("text")
     .attr("x", margin.left)
     .attr("y", 28)
-    .attr("class", "chart-title")
-    .text(width < 560 ? "Hourly rhythm" : "The same hour means different things at different ages.");
+    .attr("class", mobile ? "chart-title chart-title-small" : "chart-title")
+    .text("Dominant activity by hour");
 
-  svg.append("text")
-    .attr("x", margin.left)
-    .attr("y", 50)
-    .attr("class", "chart-subtitle")
-    .text(mobile ? "Dominant activity in each hour." : "Each cell shows the dominant activity for that age group at that hour.");
+  if (mobile) {
+    svg.append("text")
+      .attr("x", margin.left)
+      .attr("y", 50)
+      .attr("class", "chart-subtitle")
+      .text("Each cell shows the dominant activity");
+    svg.append("text")
+      .attr("x", margin.left)
+      .attr("y", 64)
+      .attr("class", "chart-subtitle")
+      .text("for that age group at that hour.");
+  } else {
+    svg.append("text")
+      .attr("x", margin.left)
+      .attr("y", 50)
+      .attr("class", "chart-subtitle")
+      .text("Each cell shows the dominant activity for that age group at that hour.");
+  }
 
   const cellGroup = svg.append("g").attr("class", "rhythm-cells");
   cellGroup.selectAll("rect.rhythm-cell")
@@ -669,7 +681,7 @@ function renderDailyRhythm() {
   svg.append("text")
     .attr("class", "axis-title")
     .attr("x", (margin.left + width - margin.right) / 2)
-    .attr("y", mobile ? height - 100 : height - 54)
+    .attr("y", height - 20)
     .attr("text-anchor", "middle")
     .text("Hour of day");
 
@@ -687,7 +699,17 @@ function renderDailyRhythm() {
       .text("Age group");
   }
 
-  drawSvgLegend(svg, CLOCK_CATEGORIES, margin.left, mobile ? height - 64 : height - 34, mobile ? 2 : 5);
+  const legend = container.append("div").attr("class", "chart-legend rhythm-legend");
+  renderLegend(legend, visibleCategories, {
+    itemClass: "chart-legend-item",
+    interactive: false
+  });
+  container.append("p")
+    .attr("class", "legend-note")
+    .text("Household/Care may still appear in the receipt because the receipt shows total time across the whole day. This grid only shows the activity that is most dominant in each hour, so smaller activities may not appear even when they add up over the day.");
+  container.append("p")
+    .attr("class", "legend-note")
+    .text("Legend shows only activities that appear as the dominant activity in this grid.");
 }
 
 function highlightRhythmCell(age, hour) {
@@ -847,14 +869,48 @@ function dominantRhythm(age) {
   });
 }
 
-function drawSvgLegend(svg, categories, x, y, columns = 4) {
-  const columnWidth = +svg.attr("width") < 560 ? 116 : 150;
-  const legend = svg.append("g").attr("class", "svg-legend").attr("transform", `translate(${x},${y})`);
-  categories.forEach((category, i) => {
-    const item = legend.append("g").attr("transform", `translate(${(i % columns) * columnWidth},${Math.floor(i / columns) * 22})`);
-    item.append("rect").attr("width", 13).attr("height", 13).attr("rx", 3).attr("fill", colorFor(category));
-    item.append("text").attr("x", 19).attr("y", 11).attr("class", "legend-text").text(category);
-  });
+function renderLegend(container, categories, options = {}) {
+  const target = typeof container === "string" ? d3.select(container) : container;
+  const itemClass = options.itemClass || "legend-item";
+  const interactive = options.interactive !== false;
+  const tag = interactive ? "button" : "div";
+
+  target.html("");
+
+  const items = target.selectAll(tag)
+    .data(categories)
+    .join(tag)
+    .attr("class", itemClass)
+    .attr("data-category", d => d)
+    .html(category => `<span style="background:${colorFor(category)}"></span>${category}`);
+
+  if (interactive) {
+    items
+      .attr("type", "button")
+      .on("mouseenter focus", (event, category) => {
+        if (!lockedCategory) applyCategoryHighlight(category);
+      })
+      .on("mouseleave blur", () => {
+        if (!lockedCategory) applyCategoryHighlight(currentHighlight);
+      });
+  }
+
+  if (options.lockable) {
+    items.on("click", (event, category) => {
+      lockedCategory = lockedCategory === category ? null : category;
+      applyCategoryHighlight(lockedCategory || currentHighlight);
+    });
+  }
+
+  if (options.reset) {
+    target.append("button")
+      .attr("type", "button")
+      .attr("class", "legend-reset")
+      .text("Reset highlight")
+      .on("click", clearCategoryHighlight);
+  }
+
+  applyCategoryHighlight(lockedCategory || currentHighlight);
 }
 
 function applyCategoryHighlight(category) {
