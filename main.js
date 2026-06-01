@@ -127,6 +127,10 @@ let currentHighlight = "Leisure";
 let lockedCategory = null;
 let receiptAge = "35-44";
 let selectedTradeoff = "work-leisure";
+let selectedCurrentCategory = "Leisure";
+let selectedShiftAge = "65+";
+let selectedRhythmAge = "18-24";
+let manualStageScrollY = null;
 let tooltip;
 
 loadData();
@@ -152,9 +156,13 @@ function loadData() {
     renderLifeClock();
     renderClockLegend();
     renderTradeoffChart();
+    renderLifeCurrent();
+    renderShiftControls();
+    renderShiftChart();
     renderDailyRhythm();
     setupLifeReceipt();
     setupScroll();
+    setupChartScroll();
     setupTradeoffControls();
     updateLifeStage(currentAge, currentHighlight);
 
@@ -162,6 +170,8 @@ function loadData() {
       renderHeroClock();
       renderLifeClock();
       renderTradeoffChart();
+      renderLifeCurrent();
+      renderShiftChart();
       renderDailyRhythm();
       applyCategoryHighlight(lockedCategory || currentHighlight);
     }, 150));
@@ -275,6 +285,7 @@ function renderAgePills() {
     .attr("class", d => `age-pill ${d === currentAge ? "is-selected" : ""}`)
     .text(d => formatAge(d))
     .on("click", (event, age) => {
+      manualStageScrollY = window.scrollY;
       updateLifeStage(age, lockedCategory || defaultHighlight(age));
     });
 }
@@ -443,42 +454,121 @@ function setMetricText(selector, value) {
 }
 
 function setupScroll() {
-  const steps = document.querySelectorAll(".step");
-  if (!steps.length || !("IntersectionObserver" in window)) return;
+  const steps = Array.from(document.querySelectorAll(".step"));
+  if (!steps.length) return;
 
-  const observer = new IntersectionObserver(entries => {
-    entries
-      .filter(entry => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-      .slice(0, 1)
-      .forEach(entry => updateLifeStage(entry.target.dataset.age, entry.target.dataset.highlight));
-  }, { threshold: [0.45, 0.65], rootMargin: "-24% 0px -28% 0px" });
+  const updateFromScroll = () => {
+    if (manualStageScrollY !== null) return;
 
-  steps.forEach(step => observer.observe(step));
+    const anchor = window.innerHeight * (window.innerWidth <= 1050 ? 0.5 : 0.46);
+    const best = steps
+      .map(step => {
+        const rect = step.getBoundingClientRect();
+        const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+        return {
+          step,
+          visible,
+          distance: Math.abs(rect.top + rect.height / 2 - anchor)
+        };
+      })
+      .filter(d => d.visible > 0)
+      .sort((a, b) => a.distance - b.distance)[0];
+
+    if (!best) return;
+    const age = best.step.dataset.age;
+    const highlight = best.step.dataset.highlight;
+    if (age !== currentAge || highlight !== currentHighlight) updateLifeStage(age, highlight);
+  };
+
+  const clearManualOverride = () => {
+    manualStageScrollY = null;
+  };
+
+  const clearManualOverrideOnKey = event => {
+    if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+      clearManualOverride();
+    }
+  };
+
+  window.addEventListener("scroll", updateFromScroll, { passive: true });
+  window.addEventListener("resize", updateFromScroll);
+  window.addEventListener("wheel", clearManualOverride, { passive: true });
+  window.addEventListener("touchmove", clearManualOverride, { passive: true });
+  window.addEventListener("keydown", clearManualOverrideOnKey);
+  updateFromScroll();
+}
+
+function setupChartScroll() {
+  const steps = Array.from(document.querySelectorAll(".chart-step"));
+  if (!steps.length) return;
+
+  const updateFromScroll = () => {
+    const anchor = window.innerHeight * (window.innerWidth <= 1050 ? 0.52 : 0.48);
+    const best = steps
+      .map(step => {
+        const rect = step.getBoundingClientRect();
+        const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+        return {
+          step,
+          visible,
+          distance: Math.abs(rect.top + rect.height / 2 - anchor)
+        };
+      })
+      .filter(d => d.visible > 0)
+      .sort((a, b) => a.distance - b.distance)[0];
+
+    if (best) applyChartStep(best.step);
+  };
+
+  window.addEventListener("scroll", updateFromScroll, { passive: true });
+  window.addEventListener("resize", updateFromScroll);
+  updateFromScroll();
+}
+
+function applyChartStep(step) {
+  const chart = step.dataset.chart;
+  d3.selectAll(`.chart-step[data-chart="${chart}"]`).classed("is-active", function () {
+    return this === step;
+  });
+
+  if (chart === "tradeoff") setTradeoffMode(step.dataset.mode, true);
+  if (chart === "current") setCurrentCategory(step.dataset.category, true);
+  if (chart === "shift") setShiftAge(step.dataset.age, true);
+  if (chart === "rhythm") setRhythmAge(step.dataset.age, true);
 }
 
 function setupTradeoffControls() {
   d3.selectAll(".tradeoff-button").on("click", event => {
-    selectedTradeoff = event.currentTarget.dataset.tradeoff;
-    d3.selectAll(".tradeoff-button").classed("is-selected", function () {
-      return this.dataset.tradeoff === selectedTradeoff;
-    });
-    updateTradeoffChart(selectedTradeoff);
+    setTradeoffMode(event.currentTarget.dataset.tradeoff);
   });
 }
 
-function updateTradeoffChart(mode) {
+function setTradeoffMode(mode, fromScroll = false) {
+  if (!mode) return;
+  const changed = selectedTradeoff !== mode;
   selectedTradeoff = mode;
-  renderTradeoffChart();
+  d3.selectAll(".tradeoff-button").classed("is-selected", function () {
+    return this.dataset.tradeoff === selectedTradeoff;
+  });
+  if (!fromScroll) {
+    d3.selectAll(`.chart-step[data-chart="tradeoff"]`).classed("is-active", function () {
+      return this.dataset.mode === selectedTradeoff;
+    });
+  }
+  if (changed) renderTradeoffChart();
+}
+
+function updateTradeoffChart(mode) {
+  setTradeoffMode(mode);
 }
 
 function renderTradeoffChart() {
   const container = d3.select("#tradeoff-chart");
   container.html("");
-  const width = container.node()?.clientWidth || 900;
-  const height = width < 640 ? 430 : 440;
-  const margin = { top: width < 560 ? 92 : 66, right: width < 560 ? 22 : 132, bottom: 76, left: width < 560 ? 50 : 86 };
-  const svg = container.append("svg").attr("width", width).attr("height", height);
+  const width = chartInnerWidth(container, 900);
+  const height = width < 640 ? 450 : 460;
+  const margin = { top: width < 560 ? 116 : 96, right: width < 560 ? 24 : 132, bottom: 84, left: width < 560 ? 54 : 78 };
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("role", "img");
   const config = TRADEOFFS[selectedTradeoff];
   const series = getTradeoffSeries(config);
   const allValues = series.flatMap(s => s.values);
@@ -490,7 +580,11 @@ function renderTradeoffChart() {
   const line = d3.line().x(d => x(d.age)).y(d => y(d.hours)).curve(d3.curveMonotoneX);
 
   svg.append("text").attr("x", margin.left).attr("y", 26).attr("class", "chart-title").text(config.title);
-  svg.append("text").attr("x", margin.left).attr("y", 48).attr("class", "chart-subtitle").text(config.subtitle);
+  wrapSvgText(
+    svg.append("text").attr("x", margin.left).attr("y", 48).attr("class", "chart-subtitle"),
+    config.subtitle,
+    width - margin.left - margin.right
+  );
 
   svg.append("g")
     .attr("class", "x-axis")
@@ -509,22 +603,16 @@ function renderTradeoffChart() {
 
   svg.append("text")
     .attr("class", "axis-title")
-    .attr("x", margin.left)
-    .attr("y", height - 20)
+    .attr("x", (margin.left + width - margin.right) / 2)
+    .attr("y", height - 24)
+    .attr("text-anchor", "middle")
     .text("Age group");
 
-  if (width < 560) {
-    svg.append("text")
-      .attr("class", "axis-title")
-      .attr("x", margin.left)
-      .attr("y", margin.top - 12)
-      .text("Hours per day");
-  } else {
-    svg.append("text")
-      .attr("class", "axis-title")
-      .attr("transform", `translate(18,${margin.top}) rotate(-90)`)
-      .text("Hours per day");
-  }
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", margin.left)
+    .attr("y", margin.top - 18)
+    .text("Hours per day");
 
   const focusLine = svg.append("line")
     .attr("class", "focus-guide")
@@ -583,6 +671,329 @@ function renderTradeoffChart() {
     .attr("text-anchor", width < 560 ? "end" : "start")
     .attr("fill", d => colorFor(d.category))
     .text(d => width < 560 ? `${formatHours(d.hours)}` : `${d.label} ${formatHours(d.hours)}`);
+
+  svg.on("click", () => animateTradeoffLines(svg));
+  animateTradeoffLines(svg);
+}
+
+function animateTradeoffLines(svg) {
+  svg.selectAll(".trade-line").each(function () {
+    const length = this.getTotalLength();
+    d3.select(this)
+      .interrupt()
+      .attr("stroke-dasharray", `${length} ${length}`)
+      .attr("stroke-dashoffset", length)
+      .transition()
+      .duration(950)
+      .ease(d3.easeCubicOut)
+      .attr("stroke-dashoffset", 0);
+  });
+
+  svg.selectAll(".trade-point, .end-label")
+    .interrupt()
+    .attr("opacity", 0)
+    .transition()
+    .delay(620)
+    .duration(320)
+    .attr("opacity", 1);
+}
+
+function renderLifeCurrent() {
+  const container = d3.select("#current-chart");
+  if (container.empty()) return;
+  container.html("");
+
+  const width = chartInnerWidth(container, 920);
+  const mobile = width < 560;
+  const height = mobile ? 450 : 520;
+  const margin = { top: mobile ? 112 : 96, right: mobile ? 26 : 116, bottom: 82, left: mobile ? 50 : 74 };
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("role", "img");
+  const data = AGES.map(age => {
+    const row = { age };
+    CLOCK_CATEGORIES.forEach(category => {
+      row[category] = categoryHours(age, category);
+    });
+    return row;
+  });
+  const x = d3.scalePoint()
+    .domain(AGES)
+    .range([margin.left, width - margin.right])
+    .padding(0.35);
+  const y = d3.scaleLinear()
+    .domain([0, 24])
+    .range([height - margin.bottom, margin.top]);
+  const layers = d3.stack()
+    .keys(CLOCK_CATEGORIES)
+    .order(d3.stackOrderNone)
+    .offset(d3.stackOffsetNone)(data);
+  const area = d3.area()
+    .x(d => x(d.data.age))
+    .y0(d => y(d[0]))
+    .y1(d => y(d[1]))
+    .curve(d3.curveMonotoneX);
+
+  svg.append("text").attr("x", margin.left).attr("y", 28).attr("class", "chart-title").text("The 24-hour current");
+  wrapSvgText(
+    svg.append("text").attr("x", margin.left).attr("y", 50).attr("class", "chart-subtitle"),
+    "Layer thickness shows hours per day. Scroll the text to focus each current.",
+    width - margin.left - margin.right
+  );
+
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).tickFormat(formatAge).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll("text").attr("class", "axis-text"));
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(4).tickFormat(d => `${d}h`).tickSize(-(width - margin.left - margin.right)))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll(".tick line").attr("class", "grid-line"))
+    .call(g => g.selectAll("text").attr("class", "axis-text"));
+
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", margin.left)
+    .attr("y", margin.top - 18)
+    .text("Hours per day");
+
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", (margin.left + width - margin.right) / 2)
+    .attr("y", height - 24)
+    .attr("text-anchor", "middle")
+    .text("Age group");
+
+  const layer = svg.selectAll("path.current-layer")
+    .data(layers)
+    .join("path")
+    .attr("class", d => `current-layer ${d.key === selectedCurrentCategory ? "is-focused" : ""}`)
+    .attr("fill", d => colorFor(d.key))
+    .attr("d", area)
+    .attr("tabindex", 0)
+    .attr("aria-label", d => `${d.key} layer`)
+    .on("mouseenter focus", (event, d) => {
+      setCurrentCategory(d.key);
+      showTooltip(event, tooltipHtml(d.key, [
+        CATEGORY[d.key]?.description || "Part of the 24-hour day",
+        `18-24: ${formatHours(categoryHours("18-24", d.key))}`,
+        `65+: ${formatHours(categoryHours("65+", d.key))}`
+      ]));
+    })
+    .on("mousemove", moveTooltip)
+    .on("mouseleave blur", hideTooltip)
+    .on("click", (event, d) => setCurrentCategory(d.key));
+
+  layer.each(function () {
+    const length = this.getTotalLength();
+    d3.select(this)
+      .attr("stroke", "rgba(255, 250, 240, 0.7)")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", `${length} ${length}`)
+      .attr("stroke-dashoffset", length)
+      .transition()
+      .duration(900)
+      .ease(d3.easeCubicOut)
+      .attr("stroke-dashoffset", 0);
+  });
+
+  if (!mobile) {
+    svg.selectAll("text.current-label")
+      .data(layers)
+      .join("text")
+      .attr("class", "current-label")
+      .attr("x", width - margin.right + 10)
+      .attr("y", d => {
+        const last = d[d.length - 1];
+        return y((last[0] + last[1]) / 2) + 4;
+      })
+      .attr("fill", d => colorFor(d.key))
+      .text(d => d.key);
+  }
+
+  setCurrentCategory(selectedCurrentCategory, true);
+}
+
+function setCurrentCategory(category, fromScroll = false) {
+  if (!category) return;
+  const changed = selectedCurrentCategory !== category;
+  selectedCurrentCategory = category;
+  d3.selectAll(".current-layer")
+    .classed("is-muted", d => d.key !== selectedCurrentCategory)
+    .classed("is-focused", d => d.key === selectedCurrentCategory);
+  d3.selectAll(".current-label")
+    .classed("is-muted", d => d.key !== selectedCurrentCategory);
+  if (!fromScroll) {
+    d3.selectAll(`.chart-step[data-chart="current"]`).classed("is-active", function () {
+      return this.dataset.category === selectedCurrentCategory;
+    });
+  }
+  if (changed) animateCurrentFocus();
+}
+
+function animateCurrentFocus() {
+  d3.selectAll(".current-layer.is-focused")
+    .interrupt()
+    .attr("opacity", 0.7)
+    .transition()
+    .duration(260)
+    .attr("opacity", 1);
+}
+
+function renderShiftControls() {
+  const controls = d3.select(".shift-controls");
+  if (controls.empty()) return;
+
+  controls.selectAll("button")
+    .data(AGES.filter(age => age !== "18-24"))
+    .join("button")
+    .attr("type", "button")
+    .attr("class", d => `shift-button ${d === selectedShiftAge ? "is-selected" : ""}`)
+    .text(d => formatAge(d))
+    .on("click", (event, age) => {
+      setShiftAge(age);
+    });
+}
+
+function setShiftAge(age, fromScroll = false) {
+  if (!age) return;
+  const changed = selectedShiftAge !== age;
+  selectedShiftAge = age;
+  d3.selectAll(".shift-button").classed("is-selected", d => d === selectedShiftAge);
+  if (!fromScroll) {
+    d3.selectAll(`.chart-step[data-chart="shift"]`).classed("is-active", function () {
+      return this.dataset.age === selectedShiftAge;
+    });
+  }
+  if (changed) renderShiftChart();
+}
+
+function renderShiftChart() {
+  const container = d3.select("#shift-chart");
+  if (container.empty()) return;
+  container.html("");
+
+  const width = chartInnerWidth(container, 920);
+  const mobile = width < 560;
+  const height = mobile ? 450 : 490;
+  const margin = { top: mobile ? 96 : 88, right: mobile ? 30 : 56, bottom: 84, left: mobile ? 112 : 166 };
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("role", "img");
+  const data = CLOCK_CATEGORIES.map(category => ({
+    category,
+    baseline: categoryHours("18-24", category),
+    current: categoryHours(selectedShiftAge, category)
+  })).map(d => ({ ...d, delta: d.current - d.baseline }));
+  const maxDelta = d3.max(data, d => Math.abs(d.delta)) || 1;
+  const x = d3.scaleLinear()
+    .domain([-maxDelta, maxDelta])
+    .nice()
+    .range([margin.left, width - margin.right]);
+  const y = d3.scaleBand()
+    .domain(data.map(d => d.category))
+    .range([margin.top, height - margin.bottom])
+    .padding(0.28);
+  const titleX = mobile ? 20 : margin.left;
+  const titleWidth = mobile ? width - 40 : width - margin.left - margin.right;
+
+  svg.append("text")
+    .attr("x", titleX)
+    .attr("y", 28)
+    .attr("class", "chart-title")
+    .text(mobile ? `Change by ${formatAge(selectedShiftAge)}` : `What ${formatAge(selectedShiftAge)} gains and gives up`);
+  wrapSvgText(
+    svg.append("text").attr("x", titleX).attr("y", 50).attr("class", "chart-subtitle"),
+    mobile ? "Hours per day compared with ages 18-24." : "Change in hours per day compared with ages 18-24.",
+    titleWidth
+  );
+
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(mobile ? 4 : 6).tickFormat(d => `${d > 0 ? "+" : ""}${d}h`))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll("text").attr("class", "axis-text"));
+
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", (margin.left + width - margin.right) / 2)
+    .attr("y", height - 24)
+    .attr("text-anchor", "middle")
+    .text("Change in hours per day");
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).tickSize(0))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.selectAll("text").attr("class", "axis-text shift-axis-text"));
+
+  svg.append("line")
+    .attr("class", "zero-line")
+    .attr("x1", x(0))
+    .attr("x2", x(0))
+    .attr("y1", margin.top - 10)
+    .attr("y2", height - margin.bottom + 10);
+
+  svg.selectAll("rect.shift-bar")
+    .data(data)
+    .join("rect")
+    .attr("class", "shift-bar")
+    .attr("x", x(0))
+    .attr("y", d => y(d.category))
+    .attr("height", y.bandwidth())
+    .attr("rx", 6)
+    .attr("fill", d => colorFor(d.category))
+    .attr("tabindex", 0)
+    .attr("aria-label", d => `${d.category}, ${formatSignedHours(d.delta)} compared with ages 18 to 24`)
+    .on("mouseenter focus", (event, d) => {
+      showTooltip(event, tooltipHtml(d.category, [
+        `${formatSignedHours(d.delta)} compared with ages 18-24`,
+        `${formatAge(selectedShiftAge)}: ${formatHours(d.current)}`,
+        `18-24: ${formatHours(d.baseline)}`
+      ]));
+    })
+    .on("mousemove", moveTooltip)
+    .on("mouseleave blur", hideTooltip)
+    .transition()
+    .duration(760)
+    .ease(d3.easeCubicOut)
+    .attr("x", d => x(Math.min(0, d.delta)))
+    .attr("width", d => Math.abs(x(d.delta) - x(0)));
+
+  svg.selectAll("text.shift-value")
+    .data(data)
+    .join("text")
+    .attr("class", "shift-value")
+    .attr("x", d => shiftValueLabelX(d, x, margin, width))
+    .attr("y", d => y(d.category) + y.bandwidth() / 2 + 4)
+    .attr("text-anchor", d => shiftValueLabelAnchor(d, x, margin, width))
+    .attr("opacity", 0)
+    .text(d => formatSignedHours(d.delta))
+    .transition()
+    .delay(520)
+    .duration(260)
+    .attr("opacity", 1);
+
+  const largestGain = d3.greatest(data, d => d.delta);
+  const largestLoss = d3.least(data, d => d.delta);
+  container.append("p")
+    .attr("class", "legend-note")
+    .text(`${formatAge(selectedShiftAge)} gains the most in ${largestGain.category.toLowerCase()} (${formatSignedHours(largestGain.delta)}) and gives up the most in ${largestLoss.category.toLowerCase()} (${formatSignedHours(largestLoss.delta)}).`);
+}
+
+function shiftValueLabelX(d, x, margin, width) {
+  const estimatedLabelWidth = 62;
+  if (d.delta < 0 && x(d.delta) - estimatedLabelWidth < margin.left) {
+    return x(d.delta) + 10;
+  }
+  const raw = d.delta >= 0 ? x(d.delta) + 8 : x(d.delta) - 8;
+  return Math.max(margin.left, Math.min(width - margin.right, raw));
+}
+
+function shiftValueLabelAnchor(d, x, margin, width) {
+  const estimatedLabelWidth = 62;
+  if (d.delta >= 0 && x(d.delta) + estimatedLabelWidth > width - margin.right) return "end";
+  if (d.delta < 0 && x(d.delta) - estimatedLabelWidth < margin.left) return "start";
+  return d.delta >= 0 ? "start" : "end";
 }
 
 function highlightTradeSeries(label) {
@@ -602,10 +1013,10 @@ function clearTradeSeriesHighlight() {
 function renderDailyRhythm() {
   const container = d3.select("#rhythm-chart");
   container.html("");
-  const width = container.node()?.clientWidth || 960;
+  const width = chartInnerWidth(container, 960);
   const mobile = width < 560;
-  const height = width < 640 ? 400 : 410;
-  const margin = { top: 72, right: mobile ? 16 : 30, bottom: mobile ? 62 : 68, left: mobile ? 54 : 86 };
+  const height = width < 640 ? 450 : 440;
+  const margin = { top: mobile ? 116 : 86, right: mobile ? 18 : 32, bottom: mobile ? 72 : 82, left: mobile ? 58 : 88 };
   const svg = container.append("svg").attr("width", width).attr("height", height);
   const x = d3.scaleBand().domain(d3.range(24)).range([margin.left, width - margin.right]).paddingInner(0.1);
   const y = d3.scaleBand().domain(AGES).range([margin.top, height - margin.bottom]).paddingInner(0.18);
@@ -617,26 +1028,16 @@ function renderDailyRhythm() {
     .attr("x", margin.left)
     .attr("y", 28)
     .attr("class", mobile ? "chart-title chart-title-small" : "chart-title")
-    .text("Dominant activity by hour");
+    .text(mobile ? "Hourly rhythm" : "Dominant activity by hour");
 
-  if (mobile) {
+  wrapSvgText(
     svg.append("text")
       .attr("x", margin.left)
       .attr("y", 50)
-      .attr("class", "chart-subtitle")
-      .text("Each cell shows the dominant activity");
-    svg.append("text")
-      .attr("x", margin.left)
-      .attr("y", 64)
-      .attr("class", "chart-subtitle")
-      .text("for that age group at that hour.");
-  } else {
-    svg.append("text")
-      .attr("x", margin.left)
-      .attr("y", 50)
-      .attr("class", "chart-subtitle")
-      .text("Each cell shows the dominant activity for that age group at that hour.");
-  }
+      .attr("class", "chart-subtitle"),
+    mobile ? "Dominant activity for each age group and hour." : "Each cell shows the dominant activity for that age group at that hour.",
+    width - margin.left - margin.right
+  );
 
   const cellGroup = svg.append("g").attr("class", "rhythm-cells");
   cellGroup.selectAll("rect.rhythm-cell")
@@ -681,23 +1082,15 @@ function renderDailyRhythm() {
   svg.append("text")
     .attr("class", "axis-title")
     .attr("x", (margin.left + width - margin.right) / 2)
-    .attr("y", height - 20)
+    .attr("y", height - 24)
     .attr("text-anchor", "middle")
     .text("Hour of day");
 
-  if (mobile) {
-    svg.append("text")
-      .attr("class", "axis-title")
-      .attr("x", margin.left)
-      .attr("y", margin.top - 10)
-      .text("Age group");
-  } else {
-    svg.append("text")
-      .attr("class", "axis-title")
-      .attr("transform", `translate(18,${(margin.top + height - margin.bottom) / 2}) rotate(-90)`)
-      .attr("text-anchor", "middle")
-      .text("Age group");
-  }
+  svg.append("text")
+    .attr("class", "axis-title")
+    .attr("x", margin.left)
+    .attr("y", margin.top - 18)
+    .text("Age group");
 
   const legend = container.append("div").attr("class", "chart-legend rhythm-legend");
   renderLegend(legend, visibleCategories, {
@@ -706,10 +1099,8 @@ function renderDailyRhythm() {
   });
   container.append("p")
     .attr("class", "legend-note")
-    .text("Household/Care may still appear in the receipt because the receipt shows total time across the whole day. This grid only shows the activity that is most dominant in each hour, so smaller activities may not appear even when they add up over the day.");
-  container.append("p")
-    .attr("class", "legend-note")
     .text("Legend shows only activities that appear as the dominant activity in this grid.");
+  applyRhythmAgeHighlight();
 }
 
 function highlightRhythmCell(age, hour) {
@@ -719,7 +1110,25 @@ function highlightRhythmCell(age, hour) {
 }
 
 function clearRhythmHighlight() {
-  d3.selectAll(".rhythm-cell").classed("is-muted", false).classed("is-focused", false);
+  applyRhythmAgeHighlight();
+}
+
+function setRhythmAge(age, fromScroll = false) {
+  if (!age) return;
+  const changed = selectedRhythmAge !== age;
+  selectedRhythmAge = age;
+  if (changed) applyRhythmAgeHighlight();
+  if (!fromScroll) {
+    d3.selectAll(`.chart-step[data-chart="rhythm"]`).classed("is-active", function () {
+      return this.dataset.age === selectedRhythmAge;
+    });
+  }
+}
+
+function applyRhythmAgeHighlight() {
+  d3.selectAll(".rhythm-cell")
+    .classed("is-muted", d => selectedRhythmAge && d.age_group !== selectedRhythmAge)
+    .classed("is-focused", d => selectedRhythmAge && d.age_group === selectedRhythmAge);
 }
 
 function setupLifeReceipt() {
@@ -983,6 +1392,20 @@ function formatHours(value) {
   return Number.isFinite(value) ? `${d3.format(".1f")(value)} hrs` : "0.0 hrs";
 }
 
+function formatSignedHours(value) {
+  if (!Number.isFinite(value)) return "+0.0 hrs";
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${d3.format(".1f")(value)} hrs`;
+}
+
+function chartInnerWidth(container, fallback) {
+  const node = container.node();
+  if (!node) return fallback;
+  const style = window.getComputedStyle(node);
+  const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  return Math.max(280, node.clientWidth - padding);
+}
+
 function formatPercent(value) {
   return Number.isFinite(value) ? d3.format(".0%")(value) : "0%";
 }
@@ -1000,6 +1423,36 @@ function formatQuarterHour(index) {
   const suffix = hour < 12 ? "am" : "pm";
   const hour12 = hour % 12 || 12;
   return `${hour12}:${String(minute).padStart(2, "0")}${suffix}`;
+}
+
+function wrapSvgText(selection, text, maxWidth, lineHeight = 14) {
+  const words = text.split(/\s+/).reverse();
+  const x = selection.attr("x");
+  const y = selection.attr("y");
+  let line = [];
+  let lineNumber = 0;
+  let word = words.pop();
+  let tspan = selection.text(null)
+    .append("tspan")
+    .attr("x", x)
+    .attr("y", y)
+    .attr("dy", 0);
+
+  while (word) {
+    line.push(word);
+    tspan.text(line.join(" "));
+    if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {
+      line.pop();
+      tspan.text(line.join(" "));
+      line = [word];
+      tspan = selection.append("tspan")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("dy", `${++lineNumber * lineHeight}px`)
+        .text(word);
+    }
+    word = words.pop();
+  }
 }
 
 function debounce(fn, wait) {

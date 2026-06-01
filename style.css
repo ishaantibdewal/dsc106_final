@@ -69,9 +69,9 @@ a {
 }
 
 h1 {
-  max-width: 980px;
-  font-size: clamp(4.4rem, 8.8vw, 10rem);
-  line-height: 0.9;
+  max-width: 720px;
+  font-size: clamp(2.8rem, 5.4vw, 5.4rem);
+  line-height: 1;
 }
 
 .subtitle {
@@ -201,6 +201,8 @@ h1 {
 
 .meet-section,
 .tradeoff-section,
+.current-section,
+.shift-section,
 .rhythm-section,
 .find-section,
 .conclusion-section,
@@ -224,9 +226,9 @@ h1 {
 
 .section-copy h2,
 .methodology h2 {
-  max-width: 1000px;
-  font-size: clamp(2.5rem, 5.5vw, 5.4rem);
-  line-height: 1.04;
+  max-width: 780px;
+  font-size: clamp(1.85rem, 3vw, 3.15rem);
+  line-height: 1.12;
 }
 
 .section-copy p:not(.kicker),
@@ -241,6 +243,7 @@ h1 {
 .avatar-card,
 .graphic-card,
 .wide-chart,
+.insight-note,
 .receipt {
   border: 1px solid rgba(38, 35, 31, 0.16);
   background: rgba(255, 250, 240, 0.86);
@@ -303,7 +306,7 @@ h1 {
 }
 
 .avatar-card h3 {
-  font-size: 2.2rem;
+  font-size: 1.85rem;
 }
 
 .avatar-card dl {
@@ -578,6 +581,7 @@ h1 {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin: 2.4rem 0 1.6rem;
+  min-width: 0;
 }
 
 .tradeoff-button {
@@ -592,6 +596,7 @@ h1 {
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.04em;
+  white-space: normal;
 }
 
 .tradeoff-button.is-selected {
@@ -599,23 +604,112 @@ h1 {
   color: #fff8eb;
 }
 
+.current-section {
+  background: rgba(255, 250, 240, 0.34);
+}
+
+.shift-section {
+  background: rgba(245, 239, 228, 0.55);
+}
+
+.chart-story-grid {
+  display: grid;
+  grid-template-columns: minmax(560px, 1.45fr) minmax(220px, 0.38fr);
+  gap: 3.8vw;
+  margin-top: 2.4rem;
+  max-width: 1480px;
+  min-width: 0;
+}
+
+.chart-sticky-panel {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  min-width: 0;
+}
+
+.chart-sticky-panel .wide-chart {
+  margin: 0;
+}
+
+.chart-steps {
+  display: grid;
+  gap: 38vh;
+  padding: 10vh 0 16vh;
+  min-width: 0;
+}
+
+.chart-step {
+  max-width: 330px;
+  padding: 20px 0 20px 20px;
+  border-left: 3px solid rgba(38, 35, 31, 0.16);
+  opacity: 0.46;
+  transition: opacity 220ms ease, border-color 220ms ease;
+  min-width: 0;
+}
+
+.chart-step.is-active {
+  border-color: var(--ink);
+  opacity: 1;
+}
+
+.chart-step h3 {
+  font-size: clamp(1.18rem, 1.55vw, 1.55rem);
+  line-height: 1.18;
+}
+
+.chart-step p:not(.step-label) {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.58;
+}
+
+.shift-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 2.2rem 0 1.4rem;
+}
+
+.shift-button {
+  min-height: 38px;
+  padding: 0 0.82rem;
+  border: 1px solid rgba(38, 35, 31, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.64);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.shift-button.is-selected,
+.shift-button:focus-visible {
+  background: var(--ink);
+  color: #fff8eb;
+  outline: none;
+}
+
 .wide-chart {
+  width: 100%;
   max-width: 1120px;
   min-height: 360px;
   padding: 22px;
   border-radius: 10px;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .chart-title {
   fill: var(--ink);
   font-family: "Libre Baskerville", Georgia, serif;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .chart-title-small {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .chart-subtitle,
@@ -630,7 +724,7 @@ h1 {
 }
 
 .end-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -655,11 +749,64 @@ h1 {
   stroke-width: 5.5;
 }
 
+.current-layer {
+  cursor: pointer;
+  opacity: 0.88;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.current-layer.is-muted {
+  opacity: 0.22;
+  filter: saturate(0.6);
+}
+
+.current-layer.is-focused {
+  opacity: 1;
+  outline: none;
+}
+
+.current-label,
+.shift-value,
+.shift-axis-text {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.current-label {
+  dominant-baseline: middle;
+}
+
+.current-label.is-muted {
+  opacity: 0.3;
+}
+
+.shift-value {
+  fill: var(--ink);
+}
+
+.zero-line {
+  stroke: rgba(38, 35, 31, 0.42);
+  stroke-width: 1.5;
+}
+
+.shift-bar {
+  cursor: help;
+  opacity: 0.86;
+  transition: opacity 160ms ease;
+}
+
+.shift-bar:hover,
+.shift-bar:focus {
+  opacity: 1;
+  outline: none;
+}
+
 .rhythm-cell {
   stroke: rgba(255, 250, 240, 0.52);
   stroke-width: 1;
   cursor: help;
-  transition: opacity 140ms ease, stroke 140ms ease;
+  transition: opacity 140ms ease, filter 140ms ease;
   outline: none;
 }
 
@@ -670,8 +817,9 @@ h1 {
 .rhythm-cell.is-focused,
 .rhythm-cell:focus {
   opacity: 1;
-  stroke: var(--ink);
-  stroke-width: 2px;
+  stroke: rgba(255, 250, 240, 0.52);
+  stroke-width: 1;
+  filter: saturate(1.12);
 }
 
 .chart-legend {
@@ -707,15 +855,19 @@ h1 {
 
 .find-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(340px, 520px);
-  gap: 44px;
+  grid-template-columns: minmax(340px, 520px);
+  gap: 28px;
   align-items: start;
+  justify-content: center;
   margin-top: 2.4rem;
 }
 
 .receipt-controls {
   display: grid;
   gap: 1rem;
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
 }
 
 .control {
@@ -740,6 +892,9 @@ h1 {
 
 .receipt {
   position: relative;
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
   padding: 30px 26px;
   border-radius: 4px;
   background: #fffdf6;
@@ -792,7 +947,7 @@ h1 {
   background: rgba(255, 253, 246, 0.78);
   color: var(--ink) !important;
   font-family: "Libre Baskerville", Georgia, serif;
-  font-size: clamp(1.45rem, 3vw, 2.4rem) !important;
+  font-size: clamp(1.25rem, 2.2vw, 1.9rem) !important;
   font-weight: 700;
   line-height: 1.18 !important;
 }
@@ -864,7 +1019,7 @@ h1 {
 
 .receipt-head h3 {
   margin: 0.45rem 0;
-  font-size: 1.45rem;
+  font-size: 1.25rem;
 }
 
 .receipt-row {
@@ -973,8 +1128,23 @@ h1 {
   .hero,
   .meet-section,
   .story-shell,
+  .chart-story-grid,
   .find-layout {
     grid-template-columns: 1fr;
+  }
+
+  .chart-sticky-panel {
+    position: relative;
+    top: auto;
+  }
+
+  .chart-steps {
+    gap: 12vh;
+    padding: 5vh 0 1vh;
+  }
+
+  .chart-step {
+    max-width: none;
   }
 
   .hero-visual {
@@ -1005,6 +1175,8 @@ h1 {
   .hero,
   .meet-section,
   .tradeoff-section,
+.current-section,
+  .shift-section,
   .rhythm-section,
   .find-section,
   .conclusion-section,
@@ -1014,7 +1186,8 @@ h1 {
   }
 
   h1 {
-    font-size: clamp(3.6rem, 17vw, 5.8rem);
+    font-size: clamp(2.55rem, 11vw, 3.75rem);
+    line-height: 1;
   }
 
   .subtitle {
@@ -1039,9 +1212,15 @@ h1 {
     display: grid;
   }
 
-  .tradeoff-button {
+  .tradeoff-button,
+  .shift-button {
     width: 100%;
     text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .shift-controls {
+    display: grid;
   }
 
   .receipt-row {

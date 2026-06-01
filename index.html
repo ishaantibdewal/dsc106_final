@@ -14,7 +14,7 @@
     <div class="hero-copy">
       <p class="kicker">2024 American Time Use Survey</p>
       <h1>This Is a Day in Your Life</h1>
-      <p class="subtitle">How one 24-hour day changes as Americans age.</p>
+      <p class="subtitle">How one 24-hour day changes as people age.</p>
       <p class="opening">Everyone gets the same 24 hours. But as we age, those hours are traded, compressed, stretched, and rearranged.</p>
       <a class="scroll-cue" href="#meet">Start the day</a>
     </div>
@@ -118,28 +118,171 @@
       </div>
     </section>
 
-    <section class="tradeoff-section" id="tradeoffs">
+    <section class="tradeoff-section chart-story" id="tradeoffs">
       <div class="section-copy">
         <p class="kicker">Tradeoffs</p>
         <h2>When one part of life grows, another shrinks.</h2>
-        <p>The chart below compares a few emotional buckets across age. It is the same 24 hours every time, so every expansion has to come from somewhere.</p>
+        <p>Scroll through the tradeoffs that shape a day. It is the same 24 hours every time, so every expansion has to come from somewhere.</p>
       </div>
-      <div class="tradeoff-controls" role="group" aria-label="Choose a tradeoff">
-        <button class="tradeoff-button is-selected" type="button" data-tradeoff="work-leisure">Work vs leisure</button>
-        <button class="tradeoff-button" type="button" data-tradeoff="care-personal">Care/chores vs personal time</button>
-        <button class="tradeoff-button" type="button" data-tradeoff="sleep-everything">Sleep vs everything else</button>
-        <button class="tradeoff-button" type="button" data-tradeoff="alone-social">Alone time vs social time</button>
+      <div class="chart-story-grid">
+        <div class="chart-sticky-panel">
+          <div class="tradeoff-controls" role="group" aria-label="Choose a tradeoff">
+            <button class="tradeoff-button is-selected" type="button" data-tradeoff="work-leisure">Work vs leisure</button>
+            <button class="tradeoff-button" type="button" data-tradeoff="care-personal">Care/chores vs personal time</button>
+            <button class="tradeoff-button" type="button" data-tradeoff="sleep-everything">Sleep vs everything else</button>
+            <button class="tradeoff-button" type="button" data-tradeoff="alone-social">Alone time vs social time</button>
+          </div>
+          <div id="tradeoff-chart" class="wide-chart"></div>
+        </div>
+        <div class="chart-steps">
+          <article class="chart-step is-active" data-chart="tradeoff" data-mode="work-leisure">
+            <p class="step-label">Tradeoff 1</p>
+            <h3>Work rises as leisure contracts.</h3>
+            <p>The first exchange is the most familiar one: institutional time moves toward the center while discretionary time narrows.</p>
+          </article>
+          <article class="chart-step" data-chart="tradeoff" data-mode="care-personal">
+            <p class="step-label">Tradeoff 2</p>
+            <h3>Unpaid work crowds the middle.</h3>
+            <p>Care and household labor become more visible in midlife, even when they do not arrive as a paycheck.</p>
+          </article>
+          <article class="chart-step" data-chart="tradeoff" data-mode="sleep-everything">
+            <p class="step-label">Tradeoff 3</p>
+            <h3>Sleep quietly sets the boundary.</h3>
+            <p>The waking day is whatever is left after the body takes its share.</p>
+          </article>
+          <article class="chart-step" data-chart="tradeoff" data-mode="alone-social">
+            <p class="step-label">Tradeoff 4</p>
+            <h3>Social context shifts too.</h3>
+            <p>Time with other people is measured separately from activity, showing that a day can change socially even when its activities look similar.</p>
+          </article>
+        </div>
       </div>
-      <div id="tradeoff-chart" class="wide-chart"></div>
     </section>
 
-    <section class="rhythm-section" id="rhythm">
+    <section class="current-section chart-story" id="life-current">
+      <div class="section-copy">
+        <p class="kicker">Life current</p>
+        <h2>The whole day moves like a river.</h2>
+        <p>Instead of comparing two lines, this chart keeps the full 24-hour budget together. Scroll to follow which layer swells, thins, or returns across age.</p>
+      </div>
+      <div class="chart-story-grid">
+        <div class="chart-sticky-panel">
+          <div id="current-chart" class="wide-chart"></div>
+        </div>
+        <div class="chart-steps">
+          <article class="chart-step is-active" data-chart="current" data-category="Leisure">
+            <p class="step-label">Current 1</p>
+            <h3>Leisure is largest before the day hardens.</h3>
+            <p>Young adulthood has the most open layer, before work and care absorb more of the day.</p>
+          </article>
+          <article class="chart-step" data-chart="current" data-category="Work/Education">
+            <p class="step-label">Current 2</p>
+            <h3>Work becomes the thick middle current.</h3>
+            <p>The work and education layer expands quickly, then later recedes.</p>
+          </article>
+          <article class="chart-step" data-chart="current" data-category="Household/Care">
+            <p class="step-label">Current 3</p>
+            <h3>Care is the quiet thickening.</h3>
+            <p>Household work and caregiving never dominate the whole day, but they steadily change the texture of midlife.</p>
+          </article>
+          <article class="chart-step" data-chart="current" data-category="Sleep">
+            <p class="step-label">Current 4</p>
+            <h3>Sleep remains the deep base layer.</h3>
+            <p>It changes less dramatically than work or leisure, but it still defines how much waking time remains.</p>
+          </article>
+          <article class="chart-step" data-chart="current" data-category="Travel">
+            <p class="step-label">Current 5</p>
+            <h3>Travel is the seam between obligations.</h3>
+            <p>It is a smaller layer, but it marks time spent moving between the parts of life.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="shift-section chart-story" id="shift-chart-section">
+      <div class="section-copy">
+        <p class="kicker">What changes</p>
+        <h2>The lifetime shift is not evenly distributed.</h2>
+        <p>Each step compares one age group against ages 18-24. Bars to the right are time gained; bars to the left are time given up.</p>
+      </div>
+      <div class="chart-story-grid">
+        <div class="chart-sticky-panel">
+          <div class="shift-controls" role="group" aria-label="Compare an age group against age 18 to 24"></div>
+          <div id="shift-chart" class="wide-chart"></div>
+        </div>
+        <div class="chart-steps">
+          <article class="chart-step is-active" data-chart="shift" data-age="25-34">
+            <p class="step-label">Compared to 18-24</p>
+            <h3>By 25-34, work takes its first major bite.</h3>
+            <p>The young adult day gives up sleep and leisure as jobs and responsibilities expand.</p>
+          </article>
+          <article class="chart-step" data-chart="shift" data-age="35-44">
+            <p class="step-label">Compared to 18-24</p>
+            <h3>At 35-44, unpaid work joins paid work.</h3>
+            <p>This is where household work and care become one of the clearest additions.</p>
+          </article>
+          <article class="chart-step" data-chart="shift" data-age="45-54">
+            <p class="step-label">Compared to 18-24</p>
+            <h3>At 45-54, the compressed day persists.</h3>
+            <p>Work remains large and leisure is still below the youngest group.</p>
+          </article>
+          <article class="chart-step" data-chart="shift" data-age="55-64">
+            <p class="step-label">Compared to 18-24</p>
+            <h3>At 55-64, release begins unevenly.</h3>
+            <p>Some time opens back up, but care, household work, and work still remain part of the exchange.</p>
+          </article>
+          <article class="chart-step" data-chart="shift" data-age="65+">
+            <p class="step-label">Compared to 18-24</p>
+            <h3>At 65+, leisure returns.</h3>
+            <p>The biggest gain is open time, and the biggest loss is work and education.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="rhythm-section chart-story" id="rhythm">
       <div class="section-copy">
         <p class="kicker">Daily rhythm</p>
         <h2>The same hour means different things at different ages.</h2>
-        <p>Each cell shows the dominant activity for that age group at that hour. Some activities may not appear here because this chart shows the dominant activity at each hour, not every activity people do.</p>
+        <p>Now the story moves from totals to timing. Each step highlights one age row in the hourly rhythm grid.</p>
       </div>
-      <div id="rhythm-chart" class="wide-chart"></div>
+      <div class="chart-story-grid">
+        <div class="chart-sticky-panel">
+          <div id="rhythm-chart" class="wide-chart"></div>
+        </div>
+        <div class="chart-steps">
+          <article class="chart-step is-active" data-chart="rhythm" data-age="18-24">
+            <p class="step-label">Rhythm 1</p>
+            <h3>The youngest day runs late.</h3>
+            <p>Sleep and leisure stretch around the edges of the day.</p>
+          </article>
+          <article class="chart-step" data-chart="rhythm" data-age="25-34">
+            <p class="step-label">Rhythm 2</p>
+            <h3>Work pulls the day into daytime.</h3>
+            <p>The grid begins to look more structured around institutional hours.</p>
+          </article>
+          <article class="chart-step" data-chart="rhythm" data-age="35-44">
+            <p class="step-label">Rhythm 3</p>
+            <h3>Midlife layers work with care.</h3>
+            <p>Even when care is not the dominant activity in an hour, it shows up in the totals and receipt.</p>
+          </article>
+          <article class="chart-step" data-chart="rhythm" data-age="45-54">
+            <p class="step-label">Rhythm 4</p>
+            <h3>The most compressed day has a firm rhythm.</h3>
+            <p>Work remains large, and personal time is pushed into smaller pieces around it.</p>
+          </article>
+          <article class="chart-step" data-chart="rhythm" data-age="55-64">
+            <p class="step-label">Rhythm 5</p>
+            <h3>The rhythm starts to loosen.</h3>
+            <p>Work still appears, but the day begins to move away from its most compressed shape.</p>
+          </article>
+          <article class="chart-step" data-chart="rhythm" data-age="65+">
+            <p class="step-label">Rhythm 6</p>
+            <h3>Later life changes the timing, not just the totals.</h3>
+            <p>The day opens, but routine still gives it structure.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
     <section class="find-section" id="find-yourself">
