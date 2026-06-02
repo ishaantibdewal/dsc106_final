@@ -331,8 +331,8 @@ function updateLifeClock(age) {
     .join(
       enter => enter.append("rect")
         .attr("class", "time-block")
-        .attr("x", d => margin.left + (d.index % cols) * (cell + cellGap))
-        .attr("y", d => margin.top + Math.floor(d.index / cols) * (cell + cellGap))
+        .attr("x", d => lifeBlockX(d.index, margin, cell, cellGap, cols))
+        .attr("y", d => lifeBlockY(d.index, margin, cell, cellGap, cols))
         .attr("width", cell)
         .attr("height", cell)
         .attr("rx", Math.min(8, cell * 0.25))
@@ -346,25 +346,37 @@ function updateLifeClock(age) {
         .call(update => update.transition()
           .duration(520)
           .ease(d3.easeCubicOut)
+          .attr("x", d => lifeBlockX(d.index, margin, cell, cellGap, cols))
+          .attr("y", d => lifeBlockY(d.index, margin, cell, cellGap, cols))
           .attr("fill", d => colorFor(d.category)))
     );
 
-  const anchors = [
-    { hour: 0, label: "12am" },
-    { hour: 6, label: "6am" },
-    { hour: 12, label: "noon" },
-    { hour: 18, label: "6pm" },
-    { hour: 24, label: "12am" }
-  ];
+  const anchors = cols === 24
+    ? [
+      { hour: 0, label: "12am" },
+      { hour: 6, label: "6am" },
+      { hour: 12, label: "noon" },
+      { hour: 18, label: "6pm" },
+      { hour: 24, label: "12am" }
+    ]
+    : [
+      { hour: 12, label: "noon" },
+      { hour: 18, label: "6pm" },
+      { hour: 24, label: "12am" }
+    ];
 
   const axisY = margin.top + rows * cell + (rows - 1) * cellGap + 34;
-  const axisX = d3.scaleLinear()
-    .domain([0, 24])
-    .range([margin.left + cell / 2, width - margin.right - cell / 2]);
+  const gridLeft = margin.left;
+  const gridRight = margin.left + cols * cell + (cols - 1) * cellGap;
+  const axisX = hour => {
+    if (hour === 24) return gridRight;
+    const column = cols === 24 ? hour : hour % cols;
+    return margin.left + column * (cell + cellGap);
+  };
   const axis = svg.select("g.clock-axis").html("");
   axis.append("line")
     .attr("class", "life-clock-axis-line")
-    .attr("x1", axisX(0))
+    .attr("x1", gridLeft)
     .attr("x2", axisX(24))
     .attr("y1", axisY - 12)
     .attr("y2", axisY - 12);
@@ -379,6 +391,18 @@ function updateLifeClock(age) {
   });
 
   applyCategoryHighlight(lockedCategory || currentHighlight);
+}
+
+function lifeBlockX(index, margin, cell, cellGap, cols) {
+  const hour = Math.floor(index / 4);
+  const column = cols === 24 ? hour : hour % cols;
+  return margin.left + column * (cell + cellGap);
+}
+
+function lifeBlockY(index, margin, cell, cellGap, cols) {
+  const quarter = index % 4;
+  const band = cols === 24 ? 0 : Math.floor(Math.floor(index / 4) / cols);
+  return margin.top + (band * 4 + quarter) * (cell + cellGap);
 }
 
 function addLifeBlockEvents(selection) {
