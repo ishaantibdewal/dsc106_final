@@ -971,8 +971,8 @@ function renderShiftChart() {
     .on("mouseenter focus", (event, d) => {
       showTooltip(event, tooltipHtml(d.category, [
         `${formatSignedHours(d.delta)} compared with ages 18-24`,
-        `${formatAge(selectedShiftAge)}: ${formatHours(d.current)}`,
-        `18-24: ${formatHours(d.baseline)}`
+        `${formatAge(selectedShiftAge)}: ${formatHoursPrecise(d.current)}`,
+        `18-24: ${formatHoursPrecise(d.baseline)}`
       ]));
     })
     .on("mousemove", moveTooltip)
@@ -1180,6 +1180,7 @@ function updateLifeReceipt() {
 function renderLifeReceipt(age = receiptAge) {
   const receipt = d3.select("#life-receipt");
   const rows = receiptRowsForAge(age);
+  const receiptPercents = roundedPercentBreakdown(rows);
   const yours = categoryHours(age, "Leisure");
   const obligations = obligationHours(age);
   const recovering = categoryHours(age, "Sleep");
@@ -1190,7 +1191,7 @@ function renderLifeReceipt(age = receiptAge) {
       <h3>Maya at ${formatAge(age)}</h3>
       <span>Weighted 2024 ATUS average</span>
     </div>
-    ${rows.map(row => `
+    ${rows.map((row, index) => `
       <div class="receipt-row" data-category="${row.category}" style="--row-color:${colorFor(row.category)}">
         <span class="receipt-swatch"></span>
         <div>
@@ -1198,7 +1199,7 @@ function renderLifeReceipt(age = receiptAge) {
           <small>${row.emotion}</small>
         </div>
         <span class="receipt-hours">${formatHours(row.hours)}</span>
-        <em>${formatPercent(row.hours / 24)}</em>
+        <em>${receiptPercents[index]}%</em>
       </div>
     `).join("")}
     <div class="receipt-summary">
@@ -1206,7 +1207,7 @@ function renderLifeReceipt(age = receiptAge) {
       <p><strong>Obligations:</strong> ${formatHours(obligations)} spent on work, school, household work, care, and travel.</p>
       <p><strong>Recovery:</strong> ${formatHours(recovering)} spent sleeping and taking care of the body.</p>
     </div>
-    <p class="receipt-note">Social time uses the ATUS social-context file, so it can overlap with the activity categories above.</p>
+    <p class="receipt-note">Percentages are rounded to total 100 across the receipt rows. Social time uses the ATUS social-context file, so it can overlap with the activity categories above.</p>
   `);
 
   receipt.selectAll(".receipt-row")
@@ -1413,6 +1414,10 @@ function formatAge(age) {
 }
 
 function formatHours(value) {
+  return Number.isFinite(value) ? `${d3.format("d")(Math.round(value))} hrs` : "0 hrs";
+}
+
+function formatHoursPrecise(value) {
   return Number.isFinite(value) ? `${d3.format(".1f")(value)} hrs` : "0.0 hrs";
 }
 
@@ -1420,6 +1425,32 @@ function formatSignedHours(value) {
   if (!Number.isFinite(value)) return "+0.0 hrs";
   const sign = value >= 0 ? "+" : "";
   return `${sign}${d3.format(".1f")(value)} hrs`;
+}
+
+function roundedPercentBreakdown(rows) {
+  const total = d3.sum(rows, d => Math.max(0, d.hours || 0));
+  if (!total) return rows.map(() => 0);
+
+  const raw = rows.map((row, index) => {
+    const percent = Math.max(0, row.hours || 0) / total * 100;
+    return {
+      index,
+      floor: Math.floor(percent),
+      remainder: percent - Math.floor(percent)
+    };
+  });
+  let remaining = 100 - d3.sum(raw, d => d.floor);
+  const rounded = raw.map(d => d.floor);
+
+  raw
+    .slice()
+    .sort((a, b) => b.remainder - a.remainder || a.index - b.index)
+    .slice(0, remaining)
+    .forEach(d => {
+      rounded[d.index] += 1;
+    });
+
+  return rounded;
 }
 
 function chartInnerWidth(container, fallback) {
