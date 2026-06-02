@@ -206,7 +206,6 @@ h1 {
 .rhythm-section,
 .find-section,
 .conclusion-section,
-.writeup-section,
 .methodology {
   padding: 7rem 7vw;
   border-top: 1px solid var(--line);
@@ -952,71 +951,6 @@ h1 {
   line-height: 1.18 !important;
 }
 
-.writeup-section {
-  background: rgba(255, 250, 240, 0.38);
-}
-
-.progress-writeup {
-  max-width: 980px;
-  border: 1px solid rgba(38, 35, 31, 0.16);
-  border-radius: 12px;
-  background: rgba(255, 250, 240, 0.86);
-  box-shadow: 0 18px 54px rgba(38, 35, 31, 0.08);
-  overflow: hidden;
-}
-
-.progress-writeup summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  padding: 1.1rem 1.25rem;
-  cursor: pointer;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.86rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  list-style: none;
-  text-transform: uppercase;
-}
-
-.progress-writeup summary::-webkit-details-marker {
-  display: none;
-}
-
-.progress-writeup summary::after {
-  content: "+";
-  display: grid;
-  place-items: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  border: 1px solid rgba(38, 35, 31, 0.18);
-  border-radius: 999px;
-  font-size: 1.05rem;
-  line-height: 1;
-}
-
-.progress-writeup[open] summary {
-  border-bottom: 1px solid var(--line);
-}
-
-.progress-writeup[open] summary::after {
-  content: "-";
-}
-
-.writeup-content {
-  display: grid;
-  gap: 1.25rem;
-  padding: 1.35rem;
-}
-
-.writeup-content p {
-  max-width: 860px;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.72;
-}
-
 .receipt-head h3 {
   margin: 0.45rem 0;
   font-size: 1.25rem;
@@ -1180,7 +1114,6 @@ h1 {
   .rhythm-section,
   .find-section,
   .conclusion-section,
-  .writeup-section,
   .methodology {
     padding: 4.8rem 6vw;
   }
