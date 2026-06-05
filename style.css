@@ -12,6 +12,8 @@
   --leisure: #4f9f7a;
   --travel: #d68145;
   --other: #9c9a91;
+  --compare-positive: var(--leisure);
+  --compare-negative: var(--work);
 }
 
 * {
@@ -230,6 +232,7 @@ h1 {
 .rhythm-section,
 .find-section,
 .conclusion-section,
+.compare-section,
 .methodology {
   padding: 7rem 7vw;
   border-top: 1px solid var(--line);
@@ -267,6 +270,8 @@ h1 {
 .graphic-card,
 .wide-chart,
 .insight-note,
+.compare-panel,
+.key-takeaway,
 .receipt {
   border: 1px solid rgba(38, 35, 31, 0.16);
   background: rgba(255, 250, 240, 0.86);
@@ -1133,6 +1138,133 @@ h1 {
   text-align: center;
 }
 
+.compare-section {
+  background: rgba(245, 239, 228, 0.42);
+}
+
+.compare-layout {
+  width: min(100%, 980px);
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 2.4rem;
+}
+
+.compare-panel {
+  display: grid;
+  gap: 1.1rem;
+  padding: clamp(1.15rem, 2.8vw, 2rem);
+  border-radius: 10px;
+}
+
+.compare-panel-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 1.2rem 2rem;
+  align-items: end;
+}
+
+.compare-panel h3,
+.key-takeaway h3 {
+  font-size: clamp(1.28rem, 1.9vw, 1.8rem);
+  line-height: 1.16;
+}
+
+.compare-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.compare-summary {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.compare-results {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: minmax(132px, 0.7fr) minmax(180px, 1fr) minmax(82px, max-content);
+  gap: 0.9rem;
+  align-items: center;
+  min-height: 54px;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid rgba(38, 35, 31, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.68);
+}
+
+.compare-label {
+  font-weight: 800;
+}
+
+.compare-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(38, 35, 31, 0.1);
+  overflow: hidden;
+}
+
+.compare-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(38, 35, 31, 0.24);
+}
+
+.compare-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--bar-width);
+  border-radius: 999px;
+  background: var(--bar-color);
+}
+
+.compare-row.is-positive .compare-fill {
+  left: 50%;
+}
+
+.compare-row.is-negative .compare-fill {
+  right: 50%;
+}
+
+.compare-row.is-zero .compare-fill {
+  left: calc(50% - 2px);
+  width: 4px;
+  opacity: 0.75;
+}
+
+.compare-hours {
+  justify-self: end;
+  color: var(--bar-color);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.key-takeaway {
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+  border-left: 4px solid var(--compare-positive);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.86);
+}
+
+.key-takeaway p:not(.card-label) {
+  margin-top: 0.85rem;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.72;
+}
+
 .receipt-head h3 {
   margin: 0.45rem 0;
   font-size: 1.25rem;
@@ -1246,7 +1378,8 @@ h1 {
   .story-shell,
   .chart-story-grid,
   .conclusion-layout,
-  .find-layout {
+  .find-layout,
+  .compare-panel-head {
     grid-template-columns: 1fr;
   }
 
@@ -1301,6 +1434,7 @@ h1 {
   .rhythm-section,
   .find-section,
   .conclusion-section,
+  .compare-section,
   .methodology {
     padding: 4.8rem 6vw;
   }
@@ -1353,6 +1487,21 @@ h1 {
 
   .shift-controls {
     display: grid;
+  }
+
+  .compare-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.55rem 0.85rem;
+    padding: 0.78rem;
+  }
+
+  .compare-bar {
+    grid-column: 1 / -1;
+    order: 3;
   }
 
   .freedom-panel {

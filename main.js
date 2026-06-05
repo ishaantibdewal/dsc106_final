@@ -1,5 +1,6 @@
 const CLOCK_CATEGORIES = ["Sleep", "Work/Education", "Household/Care", "Leisure", "Travel"];
 const CATEGORY_ORDER = ["Sleep", "Work/Education", "Household/Care", "Leisure", "Social", "Travel", "Other"];
+const COMPARE_CATEGORIES = ["Sleep", "Work/Education", "Household/Care", "Leisure", "Social", "Travel"];
 const AGES = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
 
 const CATEGORY = {
@@ -130,6 +131,8 @@ let selectedTradeoff = "work-leisure";
 let selectedCurrentCategory = "Leisure";
 let selectedShiftAge = "65+";
 let selectedRhythmAge = "18-24";
+let compareBaseAge = "18-24";
+let compareTargetAge = "65+";
 let manualStageScrollY = null;
 let tooltip;
 
@@ -161,6 +164,7 @@ function loadData() {
     renderShiftChart();
     renderDailyRhythm();
     setupLifeReceipt();
+    setupAgeCompare();
     setupScroll();
     setupChartScroll();
     setupTradeoffControls();
@@ -1173,6 +1177,75 @@ function setupLifeReceipt() {
   updateLifeReceipt();
 }
 
+function setupAgeCompare() {
+  const fromSelect = d3.select("#compare-age-from");
+  const toSelect = d3.select("#compare-age-to");
+  if (fromSelect.empty() || toSelect.empty()) return;
+
+  [fromSelect, toSelect].forEach(select => {
+    select.selectAll("option")
+      .data(AGES)
+      .join("option")
+      .attr("value", d => d)
+      .text(d => d);
+  });
+
+  fromSelect
+    .property("value", compareBaseAge)
+    .on("change", event => {
+      compareBaseAge = event.target.value;
+      renderAgeCompare();
+    });
+
+  toSelect
+    .property("value", compareTargetAge)
+    .on("change", event => {
+      compareTargetAge = event.target.value;
+      renderAgeCompare();
+    });
+
+  renderAgeCompare();
+}
+
+function renderAgeCompare() {
+  const results = d3.select("#compare-results");
+  if (results.empty()) return;
+
+  const rows = COMPARE_CATEGORIES.map(category => {
+    const first = compareCategoryHours(compareBaseAge, category);
+    const second = compareCategoryHours(compareTargetAge, category);
+    const delta = second - first;
+    const signClass = Math.abs(delta) < 0.05 ? "is-zero" : delta > 0 ? "is-positive" : "is-negative";
+    const color = signClass === "is-negative"
+      ? "var(--compare-negative)"
+      : signClass === "is-zero"
+        ? "var(--muted)"
+        : "var(--compare-positive)";
+
+    return { category, first, second, delta, signClass, color };
+  });
+  const maxDelta = d3.max(rows, d => Math.abs(d.delta)) || 1;
+
+  d3.select("#compare-summary")
+    .text(`Showing how ${compareTargetAge} differs from ${compareBaseAge}. Positive values mean the second age group spends more time in that category.`);
+
+  results
+    .attr("role", "list")
+    .html(rows.map(row => `
+      <div class="compare-row ${row.signClass}" role="listitem" style="--bar-width:${d3.format(".2f")(Math.abs(row.delta) / maxDelta * 50)}%; --bar-color:${row.color};">
+        <span class="compare-label">${row.category}</span>
+        <span class="compare-bar" aria-hidden="true"><span class="compare-fill"></span></span>
+        <span class="compare-hours">${formatDifferenceHours(row.delta)}</span>
+      </div>
+    `).join(""));
+}
+
+function compareCategoryHours(age, category) {
+  // Social context is measured separately from the activity totals in the processed data.
+  if (category === "Social") return socialHours(age, "Together");
+  return categoryHours(age, category);
+}
+
 function updateLifeReceipt() {
   renderLifeReceipt(receiptAge);
 }
@@ -1424,6 +1497,12 @@ function formatHoursPrecise(value) {
 function formatSignedHours(value) {
   if (!Number.isFinite(value)) return "+0.0 hrs";
   const sign = value >= 0 ? "+" : "";
+  return `${sign}${d3.format(".1f")(value)} hrs`;
+}
+
+function formatDifferenceHours(value) {
+  if (!Number.isFinite(value) || Math.abs(value) < 0.05) return "0.0 hrs";
+  const sign = value > 0 ? "+" : "";
   return `${sign}${d3.format(".1f")(value)} hrs`;
 }
 
